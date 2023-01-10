@@ -20,7 +20,7 @@ public class TaskData {
         return text.toString();
     }
 
-    public void print(int index) {
+    public int print(int index) {
         long startTs = System.currentTimeMillis(); // start time
         String text = texts[index];
         //for (String text : texts) {
@@ -47,6 +47,7 @@ public class TaskData {
         long endTs = System.currentTimeMillis(); // end time
 
         System.out.println("Time: " + (endTs - startTs) + "ms");
+        return maxSize;
     }
 
     public String[] getTexts() {

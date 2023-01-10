@@ -1,25 +1,34 @@
-import classes.MyRunnable;
+import classes.MyCallable;
 import classes.TaskData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.*;
 
 public class Main {
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, ExecutionException {
         TaskData taskData = new TaskData();
         taskData.generateLines();
 
-        List<Thread> threadList = new ArrayList<>();
+        //Пул потоков
+        final ExecutorService threadPool = Executors.newFixedThreadPool(taskData.getTexts().length);
+        List<Future<Integer>> futures = new ArrayList<>();
 
         for (int i = 0; i < taskData.getTexts().length; i++) {
             //Создаём поток для каждой строки
-            Thread thread = new Thread(new MyRunnable(taskData, i));
-            threadList.add(thread);
-            thread.start();
+            Callable<Integer> callable = new MyCallable(taskData, i);
+            futures.add(threadPool.submit(callable));
         }
 
-        for (Thread thread : threadList) {
-            thread.join(); // зависаем, ждём когда поток объект которого лежит в thread завершится
+        Integer max = 0;
+        for (Future<Integer> future: futures) {
+            if (future.get() > max)
+                max = future.get();
         }
+
+        //Закрываем все потоки
+        threadPool.shutdown();
+        //Выводим результат
+        System.out.println("Максимальное значение среди всех строк: " + max);
     }
 }
